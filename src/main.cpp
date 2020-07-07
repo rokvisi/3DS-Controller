@@ -1,4 +1,3 @@
-// Simple citro2d untextured shape example
 #include <citro2d.h>
 
 #include <string.h>
@@ -6,85 +5,212 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
-#define SCREEN_WIDTH  400
-#define SCREEN_HEIGHT 240
 
-//---------------------------------------------------------------------------------
+const size_t SCREEN_WIDTH = 400;
+const size_t SCREEN_HEIGHT = 240;
+
+const int INVALID_SOCKET = ~0;
+const int SOCKET_ERROR = -1;
+
+struct Pos {
+	Pos() : x(0), y(0) {}
+	Pos(const size_t x, const size_t y) : x(x), y(y) {}
+
+	size_t x;
+	size_t y;
+};
+
+void print(const Pos pos, const std::string& text) {
+	// Check for invalid sizes
+	if(pos.x < 0 || pos.y <= 0) {
+		return;
+	}
+
+	const std::string prefix = "\x1b[" + std::to_string(pos.y) + ';' + std::to_string(pos.x) + 'H';
+	std::cout << prefix + text;
+}
+/*
 int main(int argc, char* argv[]) {
-//---------------------------------------------------------------------------------
 	// Init libs
 	gfxInitDefault();
-	C3D_Init(C3D_DEFAULT_CMDBUF_SIZE);
-	C2D_Init(C2D_DEFAULT_MAX_OBJECTS);
-	C2D_Prepare();
 	consoleInit(GFX_BOTTOM, NULL);
 
-	// Create screens
-	C3D_RenderTarget* top = C2D_CreateScreenTarget(GFX_TOP, GFX_LEFT);
-
-	// Create colors
-	u32 clrWhite = C2D_Color32(0xFF, 0xFF, 0xFF, 0xFF);
-	u32 clrGreen = C2D_Color32(0x00, 0xFF, 0x00, 0xFF);
-	u32 clrRed   = C2D_Color32(0xFF, 0x00, 0x00, 0xFF);
-	u32 clrBlue  = C2D_Color32(0x00, 0x00, 0xFF, 0xFF);
-
-	u32 clrCircle1 = C2D_Color32(0xFF, 0x00, 0xFF, 0xFF);
-	u32 clrCircle2 = C2D_Color32(0xFF, 0xFF, 0x00, 0xFF);
-	u32 clrCircle3 = C2D_Color32(0x00, 0xFF, 0xFF, 0xFF);
-
-	u32 clrSolidCircle = C2D_Color32(0x68, 0xB0, 0xD8, 0xFF);
-
-	u32 clrTri1 = C2D_Color32(0xFF, 0x15, 0x00, 0xFF);
-	u32 clrTri2 = C2D_Color32(0x27, 0x69, 0xE5, 0xFF);
-
-	u32 clrRec1 = C2D_Color32(0x9A, 0x6C, 0xB9, 0xFF);
-	u32 clrRec2 = C2D_Color32(0xFF, 0xFF, 0x2C, 0xFF);
-	u32 clrRec3 = C2D_Color32(0xD8, 0xF6, 0x0F, 0xFF);
-	u32 clrRec4 = C2D_Color32(0x40, 0xEA, 0x87, 0xFF);
-
-	u32 clrClear = C2D_Color32(0xFF, 0xD8, 0xB0, 0x68);
-
 	// Main loop
-	while (aptMainLoop())
-	{
+	while (aptMainLoop()) {
 		hidScanInput();
 
 		// Respond to user input
 		u32 kDown = hidKeysDown();
-		if (kDown & KEY_START)
-			break; // break in order to return to hbmenu
-		printf("\x1b[1;1HSimple citro2d shapes example");
+		if (kDown & KEY_START) {
+			break;
+		}
+
+		if (kDown & KEY_SELECT) {
+			print({13, 13}, "SELECT IS PRESSED!");
+		}
+
 		printf("\x1b[2;1HCPU:     %6.2f%%\x1b[K", C3D_GetProcessingTime()*6.0f);
 		printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime()*6.0f);
 		printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage()*100.0f);
-		std::cout << "\x1b[5;1HTest!\x1b[K";
-
-		// Render the scene
-		C3D_FrameBegin(C3D_FRAME_SYNCDRAW);
-		C2D_TargetClear(top, clrClear);
-		C2D_SceneBegin(top);
-
-		C2D_DrawTriangle(50 / 2, SCREEN_HEIGHT - 50, clrWhite, 
-			0,  SCREEN_HEIGHT, clrTri1,
-			50, SCREEN_HEIGHT, clrTri2, 0);
-		C2D_DrawRectangle(SCREEN_WIDTH - 50, 0, 0, 50, 50, clrRec1, clrRec2, clrRec3, clrRec4);
-
-		// Circles require a state change (an expensive operation) within citro2d's internals, so draw them last.
-		// Although it is possible to draw them in the middle of drawing non-circular objects
-		// (sprites, images, triangles, rectangles, etc.) this is not recommended. They should either
-		// be drawn before all non-circular objects, or afterwards.
-		C2D_DrawEllipse(0, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, clrCircle1, clrCircle2, clrCircle3, clrWhite);
-		C2D_DrawCircle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0, 50, clrCircle3, clrWhite, clrCircle1, clrCircle2);
-		C2D_DrawCircle(25, 25, 0, 25, 
-			clrRed, clrBlue, clrGreen, clrWhite);
-		C2D_DrawCircleSolid(SCREEN_WIDTH - 25, SCREEN_HEIGHT - 25, 0, 25, clrSolidCircle);
-		C3D_FrameEnd(0);
+		std::cout << "\x1b[5;240HTest!\x1b[K";
+		print({0, 6}, "Hello!");
 	}
 
 	// Deinit libs
-	C2D_Fini();
-	C3D_Fini();
 	gfxExit();
 	return 0;
+}
+*/
+/*
+int main(int argc, char* argv[]) {
+	gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
+
+    // Create, clear then set the 'hints' struct member
+    addrinfo hints, *result(0);
+	memset((void*)&hints, 0, sizeof(hints));
+
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+	hints.ai_flags = 0;
+
+	//const std::string IP("192.168.8.102"), PORT("27215");
+	const char* i = "192.168.8.102";
+	const char* p = "8889";
+    int error = getaddrinfo(i, p, &hints, &result);
+    if(error != 0) {
+		std::cout << "GetAddrInfo failed: ";
+
+		const char* errstr = gai_strerror(error);
+		if(errstr == nullptr) {
+			std::cout << "What the fuck.";
+		}
+		else {
+			std::cout << gai_strerror(error);
+		}
+	
+    	return -1;
+	}
+
+	print({1, 6}, "");
+
+    // Create a socket for making a connection and check for errors
+    int ConnectSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
+    if(ConnectSocket == INVALID_SOCKET) { std::cout << "Error at socket(): "; freeaddrinfo(result); return 0; }
+
+    // Try to connect to the server and check for errors
+    error = connect(ConnectSocket, result->ai_addr, (int)result->ai_addrlen);
+    if(error == SOCKET_ERROR) { closesocket(ConnectSocket); std::cout << "Unable to connect to server!"; return 0; }
+    freeaddrinfo(result);
+/*
+    char recvbuf[DEFAULT_BUFLEN];  const char *sendbuf = "Fuck you bruv";
+
+    // Attempt to send a message and check for errors
+    std::cout << "Sending: \"" << sendbuf << "\"";
+    error = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+    if(error == SOCKET_ERROR) { cout << "Send failed: "; closesocket(ConnectSocket); return 0; }
+
+    std::cout << "Bytes sent: " << error << '\n';
+
+    error = send(ConnectSocket, sendbuf, (int)strlen(sendbuf), 0);
+
+    std::string message;
+    while(message != "n") {
+        std::cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin >> message;
+
+        int sent_bytes = send(ConnectSocket, message.data(), message.size(), 0);
+        if(sent_bytes == SOCKET_ERROR) {
+            cout << "Send failed: ";
+            WSAGetLastError();
+            closesocket(ConnectSocket);
+            WSACleanup();
+            getch();
+            return 0;
+        }
+    }
+----------------
+	const std::string message("Sent from the 3DS!");
+	const int sent_bytes = send(ConnectSocket, message.data(), message.size(), 0);
+	if(sent_bytes == SOCKET_ERROR) {
+		closesocket(ConnectSocket);
+		return 0;
+	}
+
+	while (aptMainLoop()) {
+		hidScanInput();
+
+		// Respond to user input
+		u32 kDown = hidKeysDown();
+		if (kDown & KEY_START) {
+			break;
+		}
+
+		if (kDown & KEY_SELECT) {
+			print({13, 13}, "SELECT IS PRESSED!");
+		}
+
+		printf("\x1b[2;1HCPU:     %6.2f%%\x1b[K", C3D_GetProcessingTime()*6.0f);
+		printf("\x1b[3;1HGPU:     %6.2f%%\x1b[K", C3D_GetDrawingTime()*6.0f);
+		printf("\x1b[4;1HCmdBuf:  %6.2f%%\x1b[K", C3D_GetCmdBufUsage()*100.0f);
+		std::cout << "\x1b[5;240HTest!\x1b[K";
+		print({0, 6}, "Hello!");
+	}
+
+	gfxExit();
+}
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <netdb.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+void check_host_name(int hostname) { //This function returns host name for local computer
+   if (hostname == -1) {
+      perror("gethostname");
+      exit(1);
+   }
+}
+void check_host_entry(struct hostent * hostentry) { //find host info from host name
+   if (hostentry == NULL){
+      perror("gethostbyname");
+      exit(1);
+   }
+}
+void IP_formatter(char *IPbuffer) { //convert IP string to dotted decimal format
+   if (NULL == IPbuffer) {
+      perror("inet_ntoa");
+      exit(1);
+   }
+}
+int main(int argc, char* argv[]) {
+	gfxInitDefault();
+	consoleInit(GFX_BOTTOM, NULL);
+	
+   char host[256];
+   struct hostent *host_entry;
+
+   int hostname = gethostname(host, sizeof(host)); //find the host name
+   check_host_name(hostname);
+
+	std::cout << host;
+
+   host_entry = gethostbyname(host); //find host information
+   check_host_entry(host_entry);
+   /*
+   char* IP = inet_ntoa(*((struct in_addr*) host_entry->h_addr_list[0])); //Convert into IP string
+   printf("Current Host Name: %s\n", host);
+   printf("Host IP: %s\n", IP);*/
 }

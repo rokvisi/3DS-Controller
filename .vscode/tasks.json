@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "build and finalize",
+			"command": "make && echo Stripping... && arm-none-eabi-strip 3DS-Controller.elf && echo Converting... && makerom -f cci -o controller.3ds -rsf \"cxi/gw_workaround.rsf\" -target d -exefslogo -elf 3DS-Controller.elf -icon \"cxi/icon.icn\" -banner \"cxi/banner.bnr\"",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"type": "shell",
+			"label": "run",
+			"command": "citra controller.3ds",
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}
