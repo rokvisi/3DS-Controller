@@ -4,7 +4,7 @@
 		{
 			"type": "shell",
 			"label": "build and finalize",
-			"command": "make && echo Stripping... && arm-none-eabi-strip 3DS-Controller.elf && echo Converting... && makerom -f cci -o controller.3ds -rsf \"cxi/gw_workaround.rsf\" -target d -exefslogo -elf 3DS-Controller.elf -icon \"cxi/icon.icn\" -banner \"cxi/banner.bnr\"",
+			"command": "build.bat",
 			"options": {
 				"cwd": "${workspaceFolder}"
 			},

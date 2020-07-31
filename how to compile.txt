@@ -1,3 +1,0 @@
-1. Make
-2. Strip .elf (arm-none-eabi-strip fileToStrip.elf)
-3. Convert to .3ds (makerom -f cci -o OUTPUT.3ds -rsf "cxi/gw_workaround.rsf" -target d -exefslogo -elf ELFFILE.elf -icon "cxi/icon.icn" -banner "cxi/banner.bnr")
