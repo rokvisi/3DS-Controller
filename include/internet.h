@@ -26,6 +26,13 @@
     typedef std::unique_ptr<addrinfo, void(*)(addrinfo*)> addrinfo_unique_ptr;
 #endif
 
+#ifndef _WIN32
+    std::string errno_s();
+#endif
+
+/*
+ * @brief Initializes the use of sockets. Winsock for windows, allocation for the 3ds and nothing for basic linux. 
+*/
 void socket_init();
 
 addrinfo_unique_ptr get_tcp_addrinfo(const std::string& ip, const std::string& port);

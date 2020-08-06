@@ -1,7 +1,32 @@
 #include "internet.h"
 
 #include <iostream>
+#include <string.h>
 
+#ifndef _WIN32
+	/*
+	 * @brief Gets the latest system error string representation.
+	 * 
+	 * @return The string representation of **errno** provided by strerror_r()
+	*/
+	std::string errno_s() {
+	    char buff[BUFSIZ];
+	    strerror_r(errno, buff, BUFSIZ);
+
+	    return buff;
+	}
+#endif
+
+/*
+ * @brief Returns a filled, smart addrinfo struct pointer that was created with these hints:
+ * ai_family = AF_UNSPEC,
+ * ai_socktype = SOCK_STREAM,
+ * ai_protocol = IPPROTO_TCP
+ * 
+ * @param ip The desired ip
+ * @param port The desired port
+ * @return A std::unique_ptr to the filled addrinfo struct
+*/
 addrinfo_unique_ptr get_tcp_addrinfo(const std::string& ip, const std::string& port) {
 	addrinfo hints = {0}, *result;
 	hints.ai_family = AF_UNSPEC;
@@ -10,12 +35,28 @@ addrinfo_unique_ptr get_tcp_addrinfo(const std::string& ip, const std::string& p
 
 	int error = getaddrinfo(!ip.empty() ? ip.data() : nullptr, !port.empty() ? port.data() : nullptr, &hints, &result);
 	if(error) {
-		std::cout << "GetAddrInfo failed: " << gai_strerror(error);
+		#ifdef _WIN32
+			std::cout << "GetAddrInfo failed: " << WSAGetLastError();
+		#else
+			std::cout << "GetAddrInfo failed: " << gai_strerror(errno);
+		#endif
 		exit(-1);
 	}
 
 	return addrinfo_unique_ptr(result, &::freeaddrinfo);
 }
+
+/*
+ * @brief Returns a filled, smart addrinfo struct pointer that was created with these hints:
+ * ai_family = AF_INET,
+ * ai_socktype = SOCK_DGRAM,
+ * ai_protocol = IPPROTO_UDP,
+ * ai_flags = AI_PASSIVE
+ * 
+ * @param ip The desired ip
+ * @param port The desired port
+ * @return A std::unique_ptr to the filled addrinfo struct
+*/
 addrinfo_unique_ptr get_udp_addrinfo(const std::string& ip, const std::string& port) {
 	addrinfo hints = {0}, *result;
 	hints.ai_family = AF_INET;
@@ -25,7 +66,11 @@ addrinfo_unique_ptr get_udp_addrinfo(const std::string& ip, const std::string& p
 
 	int error = getaddrinfo(!ip.empty() ? ip.data() : nullptr, !port.empty() ? port.data() : nullptr, &hints, &result);
 	if(error) {
-		std::cout << "GetAddrInfo failed: " << gai_strerror(error);
+		#ifdef _WIN32
+			std::cout << "GetAddrInfo failed: " << WSAGetLastError();
+		#else
+			std::cout << "GetAddrInfo failed: " << gai_strerror(errno);
+		#endif
 		exit(-1);
 	}
 
@@ -42,25 +87,22 @@ addrinfo_unique_ptr get_udp_addrinfo(const std::string& ip, const std::string& p
             exit(-1);
         }
     }
-#else
-	#ifdef _3DS
-        void socket_init() {
-            const size_t SOC_ALIGN      = 0x1000;
-	        const size_t SOC_BUFFERSIZE = 0x100000;
+#elif _3DS
+    void socket_init() {
+        const size_t SOC_ALIGN      = 0x1000;
+	    const size_t SOC_BUFFERSIZE = 0x100000;
 
-	        uint32_t* socket_buffer = (uint32_t*)aligned_alloc(SOC_ALIGN, SOC_BUFFERSIZE);
-	        if(socket_buffer == nullptr) {
-	        	std::cout << "memalign: Failed to allocate the socket buffer!";
-	        	exit(-1);
-	        }
-	
-	        auto error = socInit(socket_buffer, SOC_BUFFERSIZE);
-	        if(error) {
-	        	std::cout << "socInit failed!";
-	        	exit(-1);
-	        }
+	    uint32_t* socket_buffer = (uint32_t*)aligned_alloc(SOC_ALIGN, SOC_BUFFERSIZE);
+	    if(socket_buffer == nullptr) {
+	    	std::cout << "memalign: Failed to allocate the socket buffer!";
+        	exit(-1);
         }
-    #endif
+	
+	    if(auto error = socInit(socket_buffer, SOC_BUFFERSIZE); error) {
+	        std::cout << "socInit failed!";
+	        exit(-1);
+	    }
+    }
 #endif
 
 UDP_Server::UDP_Server(const std::string& port) : connection(0), addr_info(nullptr, &::freeaddrinfo) {
@@ -73,7 +115,7 @@ UDP_Server::UDP_Server(const std::string& port) : connection(0), addr_info(nullp
 		#ifdef _WIN32
 			std::cout << WSAGetLastError();
 		#else
-			std::cout << gai_strerror(connection);
+			std::cout << errno_s();
 		#endif
     }
 
@@ -84,7 +126,7 @@ UDP_Server::UDP_Server(const std::string& port) : connection(0), addr_info(nullp
 		#ifdef _WIN32
 			std::cout << WSAGetLastError();
 		#else
-			std::cout << gai_strerror(error);
+			std::cout << errno_s();
 		#endif
     }
 }
@@ -113,7 +155,7 @@ UDP_Client::UDP_Client(const std::string& ip, const std::string& port) : connect
 		#ifdef _WIN32
 			std::cout << WSAGetLastError();
 		#else
-			std::cout << gai_strerror(connection);
+			std::cout << errno_s();
 		#endif
 	}
 }

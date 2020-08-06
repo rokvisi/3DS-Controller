@@ -21,8 +21,8 @@ const std::string DEFAULT_IP("192.168.8.103"), DEFAULT_PORT("8889");
 /*
  * @brief Reads the settings.ini file located on the SD card and parses the ip and port numbers.	
  * 
- * @param ip the string that will hold the ip address
- * @param port the string that will hold the port number
+ * @param ip The string that will hold the ip address
+ * @param port The string that will hold the port number
 */
 void read_settings(std::string& ip, std::string& port) {
 	std::ifstream input_file("controller.ini");
@@ -59,7 +59,7 @@ uint8_t get_battery_level() {
 /*
  * @brief Gets the current charging state
  * 
- * @return 1 - charging, else - not charging
+ * @return 1 - Charging, else - not charging
 */
 uint8_t get_charging_state() {
 	uint8_t result;
