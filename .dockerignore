@@ -1,5 +1,6 @@
 build
 out/*
+!out/.gitkeep
 
 .vscode-server
 .bash*
