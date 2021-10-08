@@ -1,0 +1,10 @@
+build
+out
+
+# Env
+.vscode-server
+.bash_history
+.gitconfig
+.bashrc
+.profile
+.wget-hsts
