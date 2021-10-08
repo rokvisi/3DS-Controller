@@ -12,7 +12,7 @@
 
 //TODO: Add a constants file to have a app_name then change io::read_settings() to use it.
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) { //* Test comment from remote commit.
     //* Config the things.
     ConsoleConfig config;
     config.set_GFX().set_PTMU().set_ROMFS().set_SOCKET().set_SCR_TOP().initialize();
