@@ -4,7 +4,7 @@ LABEL Rokas Višinskas rokas.post@gmail.com
 #COPY . /root/
 
 COPY include /root/include
-COPY rmfs /root/romfs
+COPY romfs /root/romfs
 COPY src /root/src
 
 COPY Dockerfile /root/Dockerfile
