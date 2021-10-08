@@ -1,9 +1,0 @@
-build
-out
-
-.vscode-server
-.bash*
-.git
-.gitconfig
-.wget-hsts
-.profile
