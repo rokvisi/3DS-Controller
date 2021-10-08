@@ -1,31 +1,34 @@
 # 3DS-Controller
-Sending keystrokes from the 3DS to a computer. (or else)
+Sending keystrokes from the 3DS to a computer (or more).
 
 ## How to use
-1. Download the latest release of [`HandController.3dsx`](https://github.com/rokvisi/3DS-Controller/releases/tag/v0.1)
+1. Download and compile the latest source code of [3DS-Controller-PC](https://github.com/rokvisi/3DS-Controller-PC). *Check the bottom of the readme for more info.
 
-2. Create files and folders so you have the same directory structure on the SD Card of your 3DS.
+2. Download the latest release of [HandController.3dsx](https://github.com/rokvisi/3DS-Controller/releases/tag/v0.1).
+
+3. Place and create files and folders so you have the same directory structure on the SD Card of your 3DS.
 ```
 📂 SD Card
 ┣ 📂 3ds
 ┃ ┣ 📜 HandController.3dsx
 ┃ ┣ 📂 data
 ┃ ┃ ┣ 📂 HandController
-┃ ┃ ┃ ┗ 📜 controller.ini  
+┃ ┃ ┃ ┗ 📜 controller.ini
 ```
-| File                 | Full Path                                       | 
-| -------------------- | ----------------------------------------------- | 
+| File                 | Full Path                                       |
+| -------------------- | ----------------------------------------------- |
 | HandController.3dsx  | `SDCard\3ds\HandController.3dsx`.               |
-| controller.ini       | `SDCard\3ds\data\HandController\controller.ini` |  
+| controller.ini       | `SDCard\3ds\data\HandController\controller.ini` |
 
-3. Add the `IP` of your computer and the `PORT` that it will be listening on to the `.ini` file.
+4. Add the `IP` and `PORT` that your computer will be listening on to the `controller.ini` file.
 
 Example contents of `controller.ini`:
 ```
 192.168.8.104 8889
 ```
 ### Note
-Keep in mind that if you use a local IP, your 3DS also has to be on the same network.\
+Keep in mind that if you use a local IP, your 3DS also has to be on the same network.
+
 On the other hand if you use a public IP, your 3DS has to be on a different network and the port needs to be forwarded correctly.
 
 ------------------
@@ -39,7 +42,9 @@ To make it clearer for how it looks for the `controller.ini` file, here's a tabl
 | icon                              | `.3dsx` directory       | `data\HandController\controller.ini`     |
 | 3dslink NetLoader                 | `root` directory        | `3DS\data\HandController\controller.ini` |
 
-I am reluctant to use absolute paths, since I want to keep the behaviour of it using its `relative path\data\HandController\` to store data in case some users keep their homebrew apps in a different location. Using the `3dslink NetLoader` however forces me to.
+I am reluctant to use absolute paths, since I want to keep the behaviour of using the relative paths  in case some users keep their homebrew apps in a different location.
+
+`3dslink NetLoader`, however, forces me to.
 
 ## How to edit and compile source code yourself
 
@@ -48,14 +53,17 @@ I am reluctant to use absolute paths, since I want to keep the behaviour of it u
 The image includes a `devkitarm` development environment and a ready-to-use makefile with partial `C++20` support enabled.
 3. Start the image as a container and attach `VSCode` to it. (Or use any other form of containerized development.)
 
-If you want to be able to access any of the files from your local computer I advise you to create a volume for the container so that all file changes are reflected in your local filesystem.
-You can find tutorials for all of this online if you get stuck.
+I also advise you to create a volume when launching the container so that you can freely access the container's filesystem for build output files or anything else.
 
-## How to utilize
-The provided partner program is [3DS-Controller-PC](https://github.com/rokvisi/3DS-Controller-PC).
+If not, you can use the built-in `3DSLink` tool to very conveniently upload the compiled `.3dsx` to the console.\
+This is the recommended way to develop 3DS Homebrew.
 
-### However
+The syntax is like this: `>3dslink {path/to/file} -a {ip-of-3ds}`\
+Example: `>3dslink out/HandController.3dsx -a 192.168.8.101`
 
+You can find tutorials for all of this online if you need any help.
+
+## Want more?
 The 3DS application sends 12 bytes of data to a UDP Server everytime a button is pressed.\
 The data is constructed as follows:
 ```c++
